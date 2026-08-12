@@ -1,26 +1,31 @@
 import streamlit as st
 import cv2
 import numpy as np
+import requests
+import os
 
-# Configuración visual
+# Configuración visual de la página
 st.set_page_config(page_title="Detector de Humanos", page_icon="👤", layout="centered")
 
 st.title("🛡️ Sistema de Identificación Facial")
 st.write("Ubícate frente a la cámara para iniciar el escaneo de verificación humana.")
 
-# Cargar modelo desde la librería
+# Descargar el modelo Haar Cascade directamente a un archivo local
+CASCADE_FILE = "haarcascade_frontalface_default.xml"
+CASCADE_URL = "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml"
+
 @st.cache_resource
 def load_cascade():
-    cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
-    detector = cv2.CascadeClassifier()
-    if not detector.load(cascade_path):
-        detector.load(cv2.samples.findFile('haarcascades/haarcascade_frontalface_default.xml'))
-    return detector
+    if not os.path.exists(CASCADE_FILE):
+        response = requests.get(CASCADE_URL)
+        with open(CASCADE_FILE, "wb") as f:
+            f.write(response.content)
+    return cv2.CascadeClassifier(CASCADE_FILE)
 
 try:
     face_cascade = load_cascade()
 except Exception as e:
-    st.error(f"Error al cargar el modelo: {e}")
+    st.error(f"Error al inicializar la cámara/modelo: {e}")
     st.stop()
 
 # Captura de cámara
