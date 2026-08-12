@@ -18,7 +18,11 @@ def get_detector():
         r = requests.get(MODEL_URL)
         with open(MODEL_FILE, "wb") as f:
             f.write(r.content)
-    return cv2.CascadeClassifier(MODEL_FILE)
+    
+    # Carga segura del clasificador
+    cascade = cv2.CascadeClassifier()
+    cascade.load(MODEL_FILE)
+    return cascade
 
 try:
     face_cascade = get_detector()
