@@ -1,9 +1,7 @@
 import streamlit as st
-import cv2
+import face_recognition
 import numpy as np
 import random
-import requests
-import os
 from PIL import Image, ImageOps, ImageDraw
 
 st.set_page_config(page_title="Radar Cyberpunk - Verificación Humana", page_icon="🤖", layout="centered")
@@ -11,7 +9,7 @@ st.set_page_config(page_title="Radar Cyberpunk - Verificación Humana", page_ico
 st.title("🤖 Radar Cyberpunk de Identificación Facial")
 st.write("Demuestra tu autenticidad biológica ante el sistema.")
 
-# Generar un reto aleatorio
+# Generar reto aleatorio
 if "challenge" not in st.session_state:
     challenges = [
         "Pon cara de sorprendido 😮 para verificar que no eres un androide",
@@ -23,38 +21,21 @@ if "challenge" not in st.session_state:
 
 st.info(f"🎯 **RETO DE AUTENTICIDAD:** {st.session_state.challenge}")
 
-# Descarga directa del modelo Haar Cascade
-MODEL_FILE = "haarcascade_frontalface_default.xml"
-MODEL_URL = "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml"
-
-@st.cache_resource
-def load_cascade():
-    if not os.path.exists(MODEL_FILE):
-        r = requests.get(MODEL_URL)
-        with open(MODEL_FILE, "wb") as f:
-            f.write(r.content)
-    cascade = cv2.CascadeClassifier()
-    cascade.load(MODEL_FILE)
-    return cascade
-
-face_cascade = load_cascade()
-
 img_file_buffer = st.camera_input("📷 Presiona para escanear rostro")
 
 if img_file_buffer is not None:
-    # Cargar y corregir orientación de la imagen
+    # Cargar y corregir imagen
     image = Image.open(img_file_buffer)
     image = ImageOps.exif_transpose(image).convert("RGB")
     img_np = np.array(image)
     
-    # Detección
-    gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50))
+    # Detectar ubicaciones de rostros (arriba, derecha, abajo, izquierda)
+    face_locations = face_recognition.face_locations(img_np)
     
     annotated_image = image.copy()
     draw = ImageDraw.Draw(annotated_image)
     
-    if len(faces) > 0:
+    if len(face_locations) > 0:
         humanity_score = round(random.uniform(97.5, 99.9), 1)
         diagnostics = [
             "Sangre caliente detectada 🔥",
@@ -63,8 +44,9 @@ if img_file_buffer is not None:
             "Pulso biológico dentro del rango normal ❤️"
         ]
         
-        for (x, y, w, h) in faces:
-            draw.rectangle([x, y, x + w, y + h], outline="#00FFCC", width=5)
+        # Dibujar recuadro cian sobre cada rostro detectado
+        for (top, right, bottom, left) in face_locations:
+            draw.rectangle([left, top, right, bottom], outline="#00FFCC", width=5)
         
         st.image(annotated_image, caption="Escaneo completado", use_container_width=True)
         st.success(f"✅ **¡HUMANO DETECTADO!** (Nivel de Humanidad: {humanity_score}%)")
