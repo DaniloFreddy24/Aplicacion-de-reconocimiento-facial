@@ -2,6 +2,8 @@ import streamlit as st
 import cv2
 import numpy as np
 import random
+import requests
+import os
 from PIL import Image, ImageOps, ImageDraw
 
 st.set_page_config(page_title="Radar Cyberpunk - Verificación Humana", page_icon="🤖", layout="centered")
@@ -9,7 +11,7 @@ st.set_page_config(page_title="Radar Cyberpunk - Verificación Humana", page_ico
 st.title("🤖 Radar Cyberpunk de Identificación Facial")
 st.write("Demuestra tu autenticidad biológica ante el sistema.")
 
-# Generar un reto aleatorio en cada sesión
+# Generar un reto aleatorio
 if "challenge" not in st.session_state:
     challenges = [
         "Pon cara de sorprendido 😮 para verificar que no eres un androide",
@@ -21,22 +23,31 @@ if "challenge" not in st.session_state:
 
 st.info(f"🎯 **RETO DE AUTENTICIDAD:** {st.session_state.challenge}")
 
-# Cargar el detector de rostros de OpenCV
+# Descarga directa del modelo Haar Cascade
+MODEL_FILE = "haarcascade_frontalface_default.xml"
+MODEL_URL = "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml"
+
 @st.cache_resource
 def load_cascade():
-    return cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    if not os.path.exists(MODEL_FILE):
+        r = requests.get(MODEL_URL)
+        with open(MODEL_FILE, "wb") as f:
+            f.write(r.content)
+    cascade = cv2.CascadeClassifier()
+    cascade.load(MODEL_FILE)
+    return cascade
 
 face_cascade = load_cascade()
 
 img_file_buffer = st.camera_input("📷 Presiona para escanear rostro")
 
 if img_file_buffer is not None:
-    # Cargar y corregir la imagen
+    # Cargar y corregir orientación de la imagen
     image = Image.open(img_file_buffer)
     image = ImageOps.exif_transpose(image).convert("RGB")
     img_np = np.array(image)
     
-    # Convertir a escala de grises para el detector
+    # Detección
     gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50))
     
@@ -53,7 +64,6 @@ if img_file_buffer is not None:
         ]
         
         for (x, y, w, h) in faces:
-            # Dibujar caja cian estilo Cyberpunk
             draw.rectangle([x, y, x + w, y + h], outline="#00FFCC", width=5)
         
         st.image(annotated_image, caption="Escaneo completado", use_container_width=True)
