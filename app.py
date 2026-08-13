@@ -67,4 +67,4 @@ if img_file_buffer is not None:
 
 if st.button("🔄 Cambiar Reto"):
     del st.session_state.challenge
-    st.rerun()gtfff
+    st.rerun()
