@@ -1,7 +1,7 @@
 import streamlit as st
 import mediapipe as mp
 import numpy as np
-from PIL import Image, ImageOps, ImageDraw
+from PIL import Image, ImageOps
 
 st.set_page_config(page_title="Detector de Humanos", page_icon="👤", layout="centered")
 
@@ -21,35 +21,19 @@ img_file_buffer = st.camera_input("📷 Presiona para escanear rostro")
 if img_file_buffer is not None:
     # Cargar imagen y corregir orientación
     image = Image.open(img_file_buffer)
-    image = ImageOps.exif_transpose(image).convert("RGB")
-    img_array = np.array(image)
+    image = ImageOps.exif_transpose(image)
+    img_array = np.array(image.convert('RGB'))
     
-    # Detección de rostros
+    # Procesar la imagen para detectar rostros
     results = face_detector.process(img_array)
     
-    # Copia para dibujar
-    annotated_image = image.copy()
-    draw = ImageDraw.Draw(annotated_image)
-    width, height = image.size
+    st.image(image, use_container_width=True)
     
+    # Validar si se detectó al menos un rostro humano
     if results.detections:
         num_faces = len(results.detections)
-        
-        # Dibujar recuadro sobre cada rostro detectado
-        for detection in results.detections:
-            bboxC = detection.location_data.relative_bounding_box
-            xmin = int(bboxC.xmin * width)
-            ymin = int(bboxC.ymin * height)
-            w = int(bboxC.width * width)
-            h = int(bboxC.height * height)
-            
-            # Dibujar rectángulo verde alrededor del rostro
-            draw.rectangle([xmin, ymin, xmin + w, ymin + h], outline="lime", width=5)
-
-        st.image(annotated_image, caption="Rostro(s) marcado(s)", use_container_width=True)
         st.success(f"✅ **¡HUMANO IDENTIFICADO!** Se detectó {num_faces} rostro(s) humano(s) válido(s).")
         st.balloons()
     else:
-        st.image(image, caption="Sin rostro detectado", use_container_width=True)
         st.error("⚠️ **ROSTRO NO HUMANO O NO DETECTADO.** No se reconoce una estructura facial humana en la imagen.")
         st.warning("👉 Por favor, asegúrate de enfocar bien tu rostro y tener buena iluminación.")
