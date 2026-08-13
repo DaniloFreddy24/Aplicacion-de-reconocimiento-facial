@@ -6,9 +6,9 @@ import os
 import onnxruntime as ort
 from PIL import Image, ImageOps, ImageDraw
 
-st.set_page_config(page_title="Radar Cyberpunk - Verificación Humana", page_icon="🤖", layout="centered")
+st.set_page_config(page_title="Verificación Humana", page_icon="", layout="centered")
 
-st.title("🤖 Radar Cyberpunk de Identificación Facial")
+st.title(" Identificación Facial")
 st.write("Demuestra tu autenticidad biológica ante el sistema.")
 
 # Generar reto aleatorio
@@ -21,7 +21,7 @@ if "challenge" not in st.session_state:
     ]
     st.session_state.challenge = random.choice(challenges)
 
-st.info(f"🎯 **RETO DE AUTENTICIDAD:** {st.session_state.challenge}")
+st.info(f" **RETO DE AUTENTICIDAD:** {st.session_state.challenge}")
 
 # Cargar Modelo ONNX liviano de Detección Facial
 MODEL_FILE = "version-RFB-320.onnx"
