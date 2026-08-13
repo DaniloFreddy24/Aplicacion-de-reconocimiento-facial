@@ -19,10 +19,13 @@ def get_detector():
         with open(MODEL_FILE, "wb") as f:
             f.write(r.content)
     
-    # Carga segura del clasificador
-    cascade = cv2.CascadeClassifier()
-    cascade.load(MODEL_FILE)
-    return cascade
+    # Intenta cargar con la función estática de OpenCV
+    try:
+        return cv2.CascadeClassifier(MODEL_FILE)
+    except AttributeError:
+        # Fallback para Python 3.14+ / OpenCV Headless reciente
+        from cv2 import CascadeClassifier
+        return CascadeClassifier(MODEL_FILE)
 
 try:
     face_cascade = get_detector()
