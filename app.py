@@ -6,7 +6,7 @@ import os
 
 st.set_page_config(page_title="Detector de Humanos", page_icon="👤", layout="centered")
 
-st.title("Sistema de Identificación Facial")
+st.title("🛡️ Sistema de Identificación Facial")
 st.write("Ubícate frente a la cámara para iniciar el escaneo de verificación humana.")
 
 MODEL_FILE = "haarcascade_frontalface_default.xml"
@@ -18,7 +18,11 @@ def get_detector():
         r = requests.get(MODEL_URL)
         with open(MODEL_FILE, "wb") as f:
             f.write(r.content)
-    return cv2.CascadeClassifier(MODEL_FILE)
+    
+    # Carga explícita del modelo
+    detector = cv2.CascadeClassifier()
+    detector.load(MODEL_FILE)
+    return detector
 
 try:
     face_cascade = get_detector()
