@@ -3,7 +3,7 @@ from PIL import Image, ImageOps
 
 st.set_page_config(page_title="Detector de Humanos", page_icon="👤", layout="centered")
 
-st.title("🛡️ Sistema de Identificación Facial")
+st.title("Sistema de Identificación Facial")
 st.write("Ubícate frente a la cámara para iniciar el escaneo de verificación humana.")
 
 img_file_buffer = st.camera_input("📷 Presiona para escanear rostro")
