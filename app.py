@@ -6,7 +6,7 @@ import os
 
 st.set_page_config(page_title="Detector de Humanos", page_icon="👤", layout="centered")
 
-st.title("Sistema de Identificación Facial")
+st.title("Sistema de Identificación Facial De TEOFILO MAMANI, que no funciona jajaja")
 st.write("Ubícate frente a la cámara para iniciar el escaneo de verificación humana.")
 
 MODEL_FILE = "haarcascade_frontalface_default.xml"
