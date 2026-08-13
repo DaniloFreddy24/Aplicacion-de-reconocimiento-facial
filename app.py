@@ -1,6 +1,5 @@
 import streamlit as st
 import cv2
-import cv2.objdetect
 import numpy as np
 import requests
 import os
@@ -8,7 +7,7 @@ import os
 st.set_page_config(page_title="Detector de Humanos", page_icon="👤", layout="centered")
 
 st.title("🛡️ Sistema de Identificación Facial")
-st.write("Ubícate frente a la cámara para iniciar el escaneo de verificación humana.")
+st.write("Ubicate frente a la cámara para iniciar el escaneo de verificación humana.")
 
 MODEL_FILE = "haarcascade_frontalface_default.xml"
 MODEL_URL = "https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/haarcascade_frontalface_default.xml"
@@ -19,9 +18,7 @@ def get_detector():
         r = requests.get(MODEL_URL)
         with open(MODEL_FILE, "wb") as f:
             f.write(r.content)
-    
-    # Invocación directa desde el submódulo objdetect
-    return cv2.objdetect.CascadeClassifier(MODEL_FILE)
+    return cv2.CascadeClassifier(MODEL_FILE)
 
 try:
     face_cascade = get_detector()
