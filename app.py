@@ -1,5 +1,6 @@
 import streamlit as st
 import cv2
+import cv2.objdetect
 import numpy as np
 import requests
 import os
@@ -18,7 +19,9 @@ def get_detector():
         r = requests.get(MODEL_URL)
         with open(MODEL_FILE, "wb") as f:
             f.write(r.content)
-    return cv2.CascadeClassifier(MODEL_FILE)
+    
+    # Invocación directa desde el submódulo objdetect
+    return cv2.objdetect.CascadeClassifier(MODEL_FILE)
 
 try:
     face_cascade = get_detector()
